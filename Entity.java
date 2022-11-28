@@ -1,16 +1,16 @@
 public abstract class Entity {
-  private final String name;
+    private final String name;
 
-  protected Entity(String name) { this.name = name; }
+    protected Entity(String name) { this.name = name; }
 
-  public String toString() { return name; }
+    public String toString() { return name; }
 
-  public boolean equals(Object o) {
-    if (o instanceof Entity e) {
-      return e.getClass().equals(getClass()) && name.equals(e.name);
+    public boolean equals(Object o) {
+        if (o instanceof Entity e) {
+            return e.getClass().equals(getClass()) && name.equals(e.name);
+        }
+        return false;
     }
-    return false;
-  }
 
-  public int hashCode() { return name.hashCode(); }
+    public int hashCode() { return name.hashCode(); }
 }
