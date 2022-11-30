@@ -4,5 +4,17 @@
         "junit-4.13.2.jar",
         "gson-2.10.jar",
         "hamcrest-2.2.jar"
-    ]
+    ],
+    "java.debug.settings.onBuildFailureProceed": true,
+    "java.project.sourcePaths": [
+        "."
+    ],
+    "java.test.config": [
+        {
+            "name": "myConfiguration",
+            "workingDirectory": "${workspaceFolder}"
+        }
+    ],
+    "java.test.defaultConfig": "myConfiguration",
+    "editor.suggest.showDeprecated": false
 }

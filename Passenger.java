@@ -1,8 +1,19 @@
+import java.util.HashMap;
+
 public class Passenger extends Entity {
+
+    private static HashMap<String, Passenger> passengers = new HashMap<>();
+
     private Passenger(String name) { super(name); }
 
     public static Passenger make(String name) {
-        // Change this method!
-        return new Passenger(name);
+        Passenger p = passengers.get(name);
+
+        if (p == null) {
+            p = new Passenger(name);
+            passengers.put(name, p);
+        }
+
+        return p;
     }
 }

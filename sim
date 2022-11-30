@@ -1,3 +1,4 @@
 #!/bin/sh
 
+./build
 CLASSPATH=${PWD}/gson-2.10.jar:. java Sim "$@"
