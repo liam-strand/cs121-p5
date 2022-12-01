@@ -44,7 +44,7 @@ public class Config {
     }
 
     public String toString() {
-        return String.format("lines: %s\ntrips: %s", lines.toString(), trips.toString());
+        return String.format("lines: %s\ntrips: %s", lines, trips);
     }
 
     public boolean equals(Object o) {
