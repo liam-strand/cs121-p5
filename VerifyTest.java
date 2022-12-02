@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.*;
 
 import org.junit.*;
@@ -22,14 +23,28 @@ public class VerifyTest {
     }
 
     @Test public void negativeEdgeCase() {
-        Assume.assumeTrue(sim_implemented);
 
         MBTA testLine = new MBTA();
         
-        testLine.addLine("purple", List.of("Cummings", "SEC", "Tisch", "Granoff"));
+        List<String> station_names = List.of("Cummings", "SEC", "Tisch", "Granoff");
+
+        testLine.addLine("purple", station_names);
         
         Log testLog = new Log();
-        Sim.run_sim(testLine, testLog);
+
+        Train t = Train.make("purple");
+
+        Station[] s = station_names.stream().map(str -> Station.make(str)).toArray(Station[]::new);
+
+        testLog.train_moves(t, s[0], s[1]);
+        testLog.train_moves(t, s[1], s[2]);
+        testLog.train_moves(t, s[2], s[3]);
+        testLog.train_moves(t, s[3], s[2]);
+        testLog.train_moves(t, s[2], s[1]);
+        testLog.train_moves(t, s[1], s[0]);
+        testLog.train_moves(t, s[0], s[1]);
+        testLog.train_moves(t, s[1], s[2]);
+
         Verify.verify(testLine, testLog);
     }
 
@@ -72,10 +87,13 @@ public class VerifyTest {
         Passenger P2 = Passenger.make("P2");
         Passenger P3 = Passenger.make("P3");
         Passenger P4 = Passenger.make("P4");
-        mbta.addJourney("P1", line1);
-        mbta.addJourney("P2", line2);
-        mbta.addJourney("P3", line3);
-        mbta.addJourney("P4", line4);
+        Passenger P5 = Passenger.make("P5");
+
+        mbta.addJourney("P1", List.of("S1_1", "S3_3"));
+        mbta.addJourney("P2", List.of("S3_3", "S1_1"));
+        mbta.addJourney("P3", List.of("S2_1", "S2_3"));
+        mbta.addJourney("P4", List.of("S3_2", "S1_2"));
+        mbta.addJourney("P5", List.of("S1_1", "S3_2", "S2_2"));
         
         Log log = new Log();
         
@@ -83,6 +101,7 @@ public class VerifyTest {
         log.passenger_boards(P2, T2, S3_3);
         log.passenger_boards(P3, T3, S2_1);
         log.passenger_boards(P4, T4, S3_2);
+        log.passenger_boards(P5, T1, S1_1);
         log.train_moves(T2, S3_3, S2_3);
         log.train_moves(T2, S2_3, S1_3);
         log.train_moves(T2, S1_3, S1_2);
@@ -93,18 +112,20 @@ public class VerifyTest {
         log.train_moves(T1, S1_1, S2_1);
         log.train_moves(T1, S2_1, S3_1);
         log.train_moves(T1, S3_1, S3_2);
+        log.passenger_deboards(P5, T1, S3_2);
         log.train_moves(T1, S3_2, S3_3);
         log.passenger_deboards(P1, T1, S3_3); 
         log.train_moves(T2, S1_2, S1_1);
         log.train_moves(T4, S2_2, S1_2);
         log.passenger_deboards(P2, T2, S1_1);
         log.passenger_deboards(P4, T4, S1_2);
+        log.train_moves(T4, S1_2, S2_2);
+        log.train_moves(T4, S2_2, S3_2);
+        log.passenger_boards(P5, T4, S3_2);
+        log.train_moves(T4, S3_2, S2_2);
+        log.passenger_deboards(P5, T4, S2_2);
         
-        try{
-            Verify.verify(mbta, log);
-        } catch(Exception e){
-            e.printStackTrace();
-        }
+        Verify.verify(mbta, log);
     }
 
     @Test 

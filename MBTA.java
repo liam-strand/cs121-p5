@@ -1,72 +1,52 @@
 import java.util.*;
+import java.util.Map.Entry;
 import java.io.File;
 
 public class MBTA {
-    private Map<Passenger, List<Station>> journeys = new HashMap<>();
-    private Map<Train, List<Station>> lines = new HashMap<>();
-
-    private Map<Passenger, Integer> p_locations = new HashMap<>();
-
-    private Map<Train, Integer> t_locations = new HashMap<>();
-    private Map<Train, Integer> t_movements = new HashMap<>();
-
-    private Map<Station, List<Passenger>> stations = new HashMap<>();
-
-    private Map<Train, Map<Station, List<Passenger>>> trains = new HashMap<>();
+    
+    private Map<Station, Set<Journey>> stations;
+    private Map<Train, Line> lines;
+    private Map<Passenger, Journey> journies;
 
     private Config config = null;
 
     // Creates an initially empty simulation
-    public MBTA() { }
+    public MBTA() { 
+        stations = new HashMap<>();
+        lines    = new HashMap<>();
+        journies = new HashMap<>();
+    }
 
     // Adds a new transit line with given name and stations
     public void addLine(String name, List<String> stations) {
         Train t = Train.make(name);
-
-        if (this.lines.containsKey(t)) {
-            throw new RuntimeException(String.format("Line \"%s\" already exists. Duplicates are prohibited.", name));
-        } else if (stations.isEmpty()) {
-            throw new RuntimeException(String.format("A line must contain stations; \"%s\" does not.", name));
-        }
-
-        this.t_locations.put(t, 0);
-        this.t_movements.put(t, 1);
-        
-        this.lines.put(t, stations.stream().map(station -> Station.make(station)).toList());
-        this.trains.put(t, new HashMap<>());
-
-        for (Station s : lines.get(t)) {
-            this.stations.put(s, new ArrayList<>());
-            this.trains.get(t).put(s, new ArrayList<>());
-        }
+        List<Station> s_objs = stations.stream().map(s -> Station.make(s)).toList();
+        Line l = new Line(t, s_objs);
+        s_objs.stream().forEach(s -> this.stations.put(s, new HashSet<>()));
+        this.lines.put(t, l);
     }
 
     // Adds a new planned journey to the simulation
     public void addJourney(String name, List<String> stations) {
         Passenger p = Passenger.make(name);
-        if (this.journeys.containsKey(p)) {
-            throw new RuntimeException(String.format("%s's journey already exists. Duplicates are prohibited.", name));
-        } else if (stations.isEmpty()) {
-            throw new RuntimeException(String.format("A journey must contain stations; \"%s\" does not.", name));
-        }
-
-        this.journeys.put(p, stations.stream().map(s -> Station.make(s)).toList());
-        this.stations.get(this.journeys.get(p).get(0)).add(p);
-        this.p_locations.put(p, 0);
+        List<Station> s_objs = stations.stream().map(s -> Station.make(s)).toList();
+        Journey j = new Journey(p, s_objs);
+        journies.put(p, j);
+        this.stations.get(s_objs.get(0)).add(j);
     }
 
     // Return normally if initial simulation conditions are satisfied, otherwise
     // raises an exception
     public void checkStart() {
-        for (int loc : t_locations.values()) {
-            if (loc != 0) {
-                throw new RuntimeException("Some train was not at the beginning of its line");
+        for (Line l : lines.values()) {
+            if (!l.isAtStart()) {
+                throw new RuntimeException(String.format("Train %s was not at the start of its line", l.getTrain()));
             }
         }
 
-        for (int loc : p_locations.values()) {
-            if (loc != 0) {
-                throw new RuntimeException("Some passenger is not at the beginning of their journey");
+        for (Journey j : journies.values()) {
+            if (!stations.get(j.first()).contains(j)) {
+                throw new RuntimeException(String.format("Passenger %s was not at the start of its line", j.getPassenger()));
             }
         }
     }
@@ -74,21 +54,18 @@ public class MBTA {
     // Return normally if final simulation conditions are satisfied, otherwise
     // raises an exception
     public void checkEnd() {
-        for (int loc : p_locations.values()) {
-            if (loc != -1) {
-                throw new RuntimeException("Some passenger did not complete their journey");
+        for (Journey j : journies.values()) {
+            if (!j.isDone()) {
+                throw new RuntimeException(String.format("Passenger %s did not complete their journey", j.getPassenger()));
             }
         }
     }
 
     // reset to an empty simulation
     public void reset() {
-        journeys    = new HashMap<>();
-        lines       = new HashMap<>();
-        t_locations = new HashMap<>();
-        t_movements = new HashMap<>();
-        stations    = new HashMap<>();
-        trains      = new HashMap<>();
+        stations = new HashMap<>();
+        lines    = new HashMap<>();
+        journies = new HashMap<>();
     }
 
     // adds simulation configuration from a file
@@ -108,90 +85,61 @@ public class MBTA {
         }
     }
 
-    public Station findTrain(Train t) {
-        return lines.get(t).get(t_locations.get(t));
-    }
-
-    public Map<Train, Station> allTrainLocs() {
-        Map<Train, Station> out_map = new HashMap<>();
-
-        for (Map.Entry<Train, Integer> e : t_locations.entrySet()) {
-            Train t = e.getKey();
-            int loc = e.getValue();
-            out_map.put(t, lines.get(t).get(loc));
-        }
-
-        return out_map;
-    }
-
-    public Station moveTrain(Train t) {
-        
-        int loc = t_locations.get(t);
-        int mov = t_movements.get(t);
-
-        loc += mov;
-
-        if (loc >= lines.get(t).size()) {
-            loc -= 2;
-            t_movements.put(t, mov * -1);
-        } else if (loc < 0) {
-            loc += 2;
-            t_movements.put(t, mov * -1);
-        }
-
-        t_locations.put(t, loc);
-        return lines.get(t).get(loc);
-    }
-
-    public Station passengerNextStation(Passenger p) {
-        int loc = p_locations.get(p);
-
-        if (loc == -1) {
-            return null;
-        } else {
-            return journeys.get(p).get(loc + 1);
-        }
-    }
-
-    public Train passengerTrain(Passenger p) {
-        for (Map.Entry<Train, Map<Station, List<Passenger>>> e : trains.entrySet()) {
-            Train t = e.getKey();
-            for (Map.Entry<Station, List<Passenger>> car : e.getValue().entrySet()) {
-                if (car.getValue().contains(p)) {
-                    return t;
+    public Station findPassengerInStation(Passenger p) {
+        for (Entry<Station, Set<Journey>> e : stations.entrySet()) {
+            for (Journey j : e.getValue()) {
+                if (j.getPassenger() == p) {
+                    return e.getKey();
                 }
             }
         }
         return null;
     }
 
-    public Station passengerStation(Passenger p) {
-        int loc = p_locations.get(p);
-
-        if (loc == -1) {
-            return null;
-        } else if (passengerTrain(p) != null) {
-            return null;
-        } else {
-            return journeys.get(p).get(loc);
+    public Train findPassengerOnTrain(Passenger p) {
+        for (Entry<Train, Line> e : lines.entrySet()) {
+            Train t = e.getKey();
+            Line  l = e.getValue();
+            if (l.findPassenger(p) != null) {
+                return t;
+            }
         }
+        return null;
+    }
+
+    public Station findTrain(Train t) {
+        return lines.get(t).find();
+    }
+
+    public Station advanceTrain(Train t) {
+        return lines.get(t).advance().getStation();
+    }
+
+    public Map<Train, Station> allTrainLocs() {
+        Map<Train, Station> loc = new HashMap<>();
+        lines.entrySet().stream().forEach(e -> loc.put(e.getKey(), e.getValue().find()));
+        return loc;
     }
 
     public void boardTrain(Passenger p, Train t, Station s) {
-        trains.get(t).get(passengerNextStation(p)).add(p);
-        stations.get(s).remove(p);
+        Journey j = journies.get(p);
+        if (!stations.get(s).remove(j)) {
+            throw new RuntimeException(String.format("Passenger %s was not at Station %s", p, s));
+        }
+        j.board();
+        lines.get(t).addJourney(j);
     }
 
     public void deboardTrain(Passenger p, Train t, Station s) {
-        trains.get(t).get(s).remove(p);
-        
-        int loc = p_locations.get(p) + 1;
-        if (loc == journeys.get(p).size() - 1) {
-            loc = -1;
-        } else {            
-            stations.get(s).add(p);
+        Journey j = journies.get(p);
+        j.deboard();
+        stations.get(s).add(j);
+        if (findTrain(t) != s) {
+            throw new RuntimeException(String.format("Train %s was not at Station %s", t, s));
         }
+    }
 
-        p_locations.put(p, loc);
+    public Station passengerNextStation(Passenger p) {
+        return journies.get(p).next();
     }
 }

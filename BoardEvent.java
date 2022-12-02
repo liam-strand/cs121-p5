@@ -27,8 +27,8 @@ public class BoardEvent implements Event {
             throw new RuntimeException(String.format("The train (%s) was not at the expected station (expected %s got %s)", t, s, train_stat.get(t)));
         }
 
-        if (s != mbta.passengerStation(p)) {
-            throw new RuntimeException(String.format("The passenger (%s) was not at the expected station (expected %s got %s)", p, s, mbta.passengerStation(p)));
+        if (s != mbta.findPassengerInStation(p)) {
+            throw new RuntimeException(String.format("The passenger (%s) was not at the expected station (expected %s got %s)", p, s, mbta.findPassengerInStation(p)));
         }
 
         mbta.boardTrain(p, t, s);

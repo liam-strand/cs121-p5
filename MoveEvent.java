@@ -22,7 +22,7 @@ public class MoveEvent implements Event {
     }
     public void replayAndCheck(MBTA mbta) {
         Station start = mbta.findTrain(t);
-        Station end = mbta.moveTrain(t);
+        Station end = mbta.advanceTrain(t);
 
         if (start != s1) {
             throw new RuntimeException("Train started at the wrong station");
