@@ -21,21 +21,6 @@ public class MoveEvent implements Event {
         return List.of(t.toString(), s1.toString(), s2.toString());
     }
     public void replayAndCheck(MBTA mbta) {
-        Station start = mbta.findTrain(t);
-        Station end = mbta.advanceTrain(t);
-
-        if (start != s1) {
-            throw new RuntimeException("Train started at the wrong station");
-        } else if (end != s2) {
-            throw new RuntimeException("Train ended at the wrong station");
-        }
-
-        for (Map.Entry<Train, Station> loc : mbta.allTrainLocs().entrySet()) {
-            if (loc.getKey() != t) {
-                if (loc.getValue() == s2) {
-                    throw new RuntimeException("Train entered a station where a train already was");
-                }
-            }
-        }
+        mbta.moveTrainChecked(t, s1, s2);
     }
 }

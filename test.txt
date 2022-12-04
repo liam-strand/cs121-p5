@@ -1,0 +1,21 @@
+Passenger Liam boards Green at Medford
+Train Red moves from Davis to Harvard
+Train Green moves from Medford to Harvard
+Passenger Liam deboards Green at Harvard
+Train Red moves from Harvard to MIT
+Train Green moves from Harvard to SMFA
+Passenger Cece boards Green at SMFA
+Train Green moves from SMFA to SMFA
+Train Red moves from MIT to MIT
+Train Green moves from SMFA to Harvard
+Passenger Cece deboards Green at Harvard
+Train Red moves from MIT to Harvard
+Passenger Liam boards Red at Harvard
+Passenger Cece boards Red at Harvard
+Train Red moves from Harvard to Davis
+Passenger Cece deboards Red at Davis
+Train Green moves from Harvard to Medford
+Train Red moves from Davis to Harvard
+Train Green moves from Medford to Harvard
+Train Red moves from Harvard to MIT
+Passenger Liam deboards Red at MIT

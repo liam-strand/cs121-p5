@@ -1,8 +1,5 @@
-import java.lang.reflect.*;
-import java.io.*;
-import java.util.*;
-import com.google.gson.*;
-import com.google.gson.reflect.*;
+import java.util.List;
+import java.util.LinkedList;
 
 public class Log {
     private List<Event> events;

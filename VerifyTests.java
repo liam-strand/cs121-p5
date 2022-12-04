@@ -10,7 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.*;
 
 
-public class VerifyTest {
+public class VerifyTests {
     
     public static boolean sim_implemented = true;
 

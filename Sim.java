@@ -3,7 +3,7 @@ import java.io.*;
 public class Sim {
 
     public static void run_sim(MBTA mbta, Log log) {
-        throw new UnsupportedOperationException();
+        mbta.run(log);
     }
 
     public static void main(String[] args) throws Exception {

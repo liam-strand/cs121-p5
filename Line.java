@@ -1,73 +1,81 @@
-import java.util.concurrent.*;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.*;
 
 public class Line extends Thread {
     private Train t;
-    private List<Stop> stops;
-    private int train_idx;
-    private int train_dir;
+    private Map<Station, Car> cars;
+    private List<Station> stops;
+    private int idx;
+    private int dir;
+    private int len;
+    private final MBTA mbta;
+    private final Log log;
+    private final Actors actors;
+    private Map<Station, Map<Train, Platform>> platforms;
 
-    public Line(Train t, List<Station> stations) {
+    public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms, Actors actors) {
         this.t = t;
-        this.stops = new ArrayList<>();
-        stations.forEach(s -> stops.add(new Stop(s)));
-        
-        this.train_dir = 1;
-        this.train_idx = 0;
+        this.stops = stations;
+        this.cars = new HashMap<>();
+        stations.forEach(s -> cars.put(s, new Car(t, s)));
+
+        this.dir = 1;
+        this.idx = 0;
+        this.len = stations.size();
+
+        this.mbta = mbta;
+        this.log = log;
+        this.platforms = platforms;
+        this.actors = actors;
     }
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
-    }
+        Station curr = stops.get(idx);
+        while (!Thread.interrupted()) {
+            try {
+                // Tell everyone who needs to get off to deboard the train
+                Car c = cars.get(curr);
+                synchronized(c) { c.notifyAll(); }
+                
+                // Tell everyone who needs to get on to board the train
+                Platform p = platforms.get(curr).get(t);
+                synchronized(p) { p.notifyAll(); }
 
-    synchronized public Station findPassenger(Passenger p) {
-        for (Stop s : stops) {
-            if (s.contains(p)) {
-                return s.getStation();
+                Thread.sleep(500);
+
+                // move the train
+                Station old = stops.get(idx);
+                advance();
+                curr = stops.get(idx);
+                synchronized(curr) {
+                    while(!mbta.stationHasNoTrain(curr)) {
+                        curr.wait();
+                    }
+                    mbta.moveTrain(t, old, curr);
+                    log.train_moves(t, old, curr);
+                    synchronized(old) { old.notifyAll(); }
+                }
+            
+            } catch (InterruptedException ex) {
+                this.interrupt();
             }
         }
-        return null;
     }
 
-    public void addJourney(Journey j) {
-        Station target = j.next();
-        for (Stop stop : stops) {
-            if (target == stop.getStation()) {
-                stop.add(j);
-                return;
-            }
+    private void advance() {
+        idx += dir;
+
+        if (idx >= len) {
+            dir *= -1;
+            idx = len - 2;
+        } else if (idx < 0) {
+            dir *= -1;
+            idx = 1;
         }
-        throw new RuntimeException("Passenger tried to board the wrong train");
     }
 
-    public Train getTrain() {
-        return t;
-    }
-
-    public Station find() {
-        return stops.get(train_idx).getStation();
-    }
-
-    public Stop advance() {
-        train_idx += train_dir;
-
-        if (train_idx < 0) {
-            train_idx += 2;
-            train_dir *= -1;
-        } else if (train_idx >= stops.size()) {
-            train_idx -= 2;
-            train_dir *= -1;
-        }
-
-        return stops.get(train_idx);
-    }
-
-    public boolean isAtStart() {
-        return train_idx == 0;
-    }
-
-    public String toString() {
-        return String.format("%s%s(%s): [%s]", t, train_dir == 1 ? ">" : "<", train_idx, stops.stream().map(e -> String.format("%s |", e)));
+    public Car getCar(Station s) {
+        return cars.get(s);
     }
 }

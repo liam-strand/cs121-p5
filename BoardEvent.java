@@ -21,16 +21,6 @@ public class BoardEvent implements Event {
         return List.of(p.toString(), t.toString(), s.toString());
     }
     public void replayAndCheck(MBTA mbta) {
-        Map<Train, Station> train_stat = mbta.allTrainLocs();
-        
-        if (s != train_stat.get(t)) {
-            throw new RuntimeException(String.format("The train (%s) was not at the expected station (expected %s got %s)", t, s, train_stat.get(t)));
-        }
-
-        if (s != mbta.findPassengerInStation(p)) {
-            throw new RuntimeException(String.format("The passenger (%s) was not at the expected station (expected %s got %s)", p, s, mbta.findPassengerInStation(p)));
-        }
-
-        mbta.boardTrain(p, t, s);
+        mbta.boardTrainChecked(p, t, s);
     }
 }

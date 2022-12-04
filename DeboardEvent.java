@@ -21,16 +21,6 @@ public class DeboardEvent implements Event {
         return List.of(p.toString(), t.toString(), s.toString());
     }
     public void replayAndCheck(MBTA mbta) {
-        Map<Train, Station> train_stat = mbta.allTrainLocs();
-        
-        if (s != train_stat.get(t)) {
-            throw new RuntimeException(String.format("The train (%s) was not at the expected station (expected %s got %s)", t, s, train_stat.get(t)));
-        }
-
-        if (s != mbta.passengerNextStation(p)) {
-            throw new RuntimeException(String.format("The passenger (%s) was not supposed to go to the current station (wanted %s got %s)", p, mbta.passengerNextStation(p), s));
-        }
-
-        mbta.deboardTrain(p, t, s);
+        mbta.deboardTrainChecked(p, t, s);
     }
 }
