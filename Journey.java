@@ -33,7 +33,11 @@ public class Journey extends Thread {
                 Train t = plat.getTrain();
 
                 // Wait on the platform
-                synchronized(plat) { plat.wait(); }
+                synchronized(plat) { 
+                    while(mbta.findTrain(t) != currentStation) {
+                        plat.wait(); 
+                    }
+                }
 
                 // Board the train when it arrives
                 mbta.boardTrain(p, t, currentStation);
@@ -42,11 +46,16 @@ public class Journey extends Thread {
                 // Find what car to wait in
                 Car c = actors.getLine(t).getCar(path.peek());
                 
+                currentStation = path.poll();
+
                 // wait in that car
-                synchronized(c) { c.wait(); }
+                synchronized(c) { 
+                    while(mbta.findTrain(t) != currentStation) {
+                        c.wait();
+                    }
+                }
 
                 // deboard the car
-                currentStation = path.poll();
                 mbta.deboardTrain(p, t, currentStation);
                 log.passenger_deboards(p, t, currentStation);
             }

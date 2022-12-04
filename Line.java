@@ -52,10 +52,10 @@ public class Line extends Thread {
                     while(!mbta.stationHasNoTrain(curr)) {
                         curr.wait();
                     }
-                    mbta.moveTrain(t, old, curr);
-                    log.train_moves(t, old, curr);
-                    synchronized(old) { old.notifyAll(); }
                 }
+                mbta.moveTrain(t, old, curr);
+                log.train_moves(t, old, curr);
+                synchronized(old) { old.notifyAll(); }
             
             } catch (InterruptedException ex) {
                 this.interrupt();
