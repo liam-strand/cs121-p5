@@ -15,7 +15,7 @@ public class Actors {
         for (Entry<Train, List<Station>> lineSpec : lineSpecs.entrySet()) {
             Train t = lineSpec.getKey();
             List<Station> stations = lineSpec.getValue();
-            lines.put(lineSpec.getKey(), new Line(t, stations, mbta, log, platforms, this));
+            lines.put(lineSpec.getKey(), new Line(t, stations, mbta, log, platforms));
 
             for (Station s : stations) {
                 if (platforms.get(s) == null) {

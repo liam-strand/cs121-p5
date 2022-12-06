@@ -86,13 +86,15 @@ public class SimTest {
     @Test public void harvardStressTest() {
         Config c = new Config();
         c.lines = Map.of(
-            "blue", List.of("Davis", "Porter", "Harvard"),
-            "red", List.of("MIT", "Central", "Harvard"),
-            "magenta", List.of("Harvard", "Tufts", "Northeastern"),
-            "chartruse", List.of("CoOP", "Harvard", "Charles")
+            "blue",      List.of("Davis",   "Porter",  "Harvard"),
+            "red",       List.of("MIT",     "Central", "Harvard"),
+            "magenta",   List.of("Harvard", "Tufts",   "Northeastern"),
+            "chartruse", List.of("CoOP",    "Harvard", "Charles")
         );
         c.trips = Map.of(
-            "liam", List.of("Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard")
+            "liam", List.of(
+                "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard"
+            )
         );
 
         runAndCheckSim(c);
@@ -109,27 +111,27 @@ public class SimTest {
         Config c = Config.fromJsonString("""
             {
                 "lines": {
-                    "blue": ["R", "S", "P", "N", "M", "F"],
-                    "green": ["H", "G", "E", "B", "C"],
+                    "blue":   ["R", "S", "P", "N", "M", "F"],
+                    "green":  ["H", "G", "E", "B", "C"],
                     "orange": ["L", "K", "J", "I", "H"],
                     "purple": ["O", "N", "Q", "S", "T", "L"],
-                    "red": ["A", "B", "D", "G", "F"]
+                    "red":    ["A", "B", "D", "G", "F"]
                 },
                 "trips": {
                     "Aardvark": ["R", "S", "T"],
-                    "Bear": ["R", "F", "G", "H"],
-                    "Cow": ["R", "S", "L", "H"],
-                    "Dog": ["A", "B", "G"],
+                    "Bear":     ["R", "F", "G", "H"],
+                    "Cow":      ["R", "S", "L", "H"],
+                    "Dog":      ["A", "B", "G"],
                     "Elephant": ["D", "F", "N", "T"],
-                    "Frog": ["O", "N", "F", "G", "H"],
-                    "Giraffe": ["O", "L", "H"],
-                    "Horse": ["M", "N"],
-                    "Iguana": ["P", "F", "B", "C"],
-                    "Jaguar": ["H", "L"],
-                    "Koala": ["L", "T"],
-                    "Lamprey": ["L", "H", "G", "F", "S", "T"]
+                    "Frog":     ["O", "N", "F", "G", "H"],
+                    "Giraffe":  ["O", "L", "H"],
+                    "Horse":    ["M", "N"],
+                    "Iguana":   ["P", "F", "B", "C"],
+                    "Jaguar":   ["H", "L"],
+                    "Koala":    ["L", "T"],
+                    "Lamprey":  ["L", "H", "G", "F", "S", "T"]
                 }
-            }              
+            }
         """);
 
         runThenCheckSim(c);
