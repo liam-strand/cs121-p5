@@ -15,7 +15,7 @@ public class SimTest {
 
     @Rule public TemporaryFolder sandbox = new TemporaryFolder();
 
-    private void runAndCheckSim(Config c) {
+    private void runThenCheckSim(Config c) {
         try {
             MBTA mbta = new MBTA();
             
@@ -37,12 +37,34 @@ public class SimTest {
         }
     }
 
+    private void runAndCheckSim(Config c) {
+        try {
+            MBTA mbta = new MBTA();
+            
+            File configFile = sandbox.newFile();
+
+            c.toFile(configFile);
+    
+            mbta.loadConfig(configFile.getPath());
+    
+            Log log = new Log();
+    
+            mbta.runChecked(log);
+    
+            mbta.reset();
+            mbta.loadConfig(configFile.getPath());
+            Verify.verify(mbta, log);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     @Test public void singleLineOnePassenger() {
         Config c = new Config();
         c.lines = Map.of("Green", List.of("Medford", "Ball", "Teele", "Lechmere"));
         c.trips = Map.of("Liam", List.of("Medford", "Lechmere"));
 
-        runAndCheckSim(c);
+        runThenCheckSim(c);
     }
 
     @Test public void twoLinesTwoPassengers() {
@@ -58,12 +80,64 @@ public class SimTest {
 
         // c.toFile(new File ("/Users/liamstrand/Desktop/Tufts/Junior/cs121/p5/small.json"));
 
+        runThenCheckSim(c);
+    }
+
+    @Test public void harvardStressTest() {
+        Config c = new Config();
+        c.lines = Map.of(
+            "blue", List.of("Davis", "Porter", "Harvard"),
+            "red", List.of("MIT", "Central", "Harvard"),
+            "magenta", List.of("Harvard", "Tufts", "Northeastern"),
+            "chartruse", List.of("CoOP", "Harvard", "Charles")
+        );
+        c.trips = Map.of(
+            "liam", List.of("Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard")
+        );
+
         runAndCheckSim(c);
+    }
+    
+    @Test public void gradescopeElephantTestRep() {
+        for (int i = 0; i < 10; i++) {
+            gradescopeElephantTest();
+        }
+    }
+
+    @Test public void gradescopeElephantTest() {
+
+        Config c = Config.fromJsonString("""
+            {
+                "lines": {
+                    "blue": ["R", "S", "P", "N", "M", "F"],
+                    "green": ["H", "G", "E", "B", "C"],
+                    "orange": ["L", "K", "J", "I", "H"],
+                    "purple": ["O", "N", "Q", "S", "T", "L"],
+                    "red": ["A", "B", "D", "G", "F"]
+                },
+                "trips": {
+                    "Aardvark": ["R", "S", "T"],
+                    "Bear": ["R", "F", "G", "H"],
+                    "Cow": ["R", "S", "L", "H"],
+                    "Dog": ["A", "B", "G"],
+                    "Elephant": ["D", "F", "N", "T"],
+                    "Frog": ["O", "N", "F", "G", "H"],
+                    "Giraffe": ["O", "L", "H"],
+                    "Horse": ["M", "N"],
+                    "Iguana": ["P", "F", "B", "C"],
+                    "Jaguar": ["H", "L"],
+                    "Koala": ["L", "T"],
+                    "Lamprey": ["L", "H", "G", "F", "S", "T"]
+                }
+            }              
+        """);
+
+        runThenCheckSim(c);
     }
 
     @Test public void providedTest() {
         Config c = Config.fromFile(new File(System.getProperty("user.dir"), "sample.json"));
 
-        runAndCheckSim(c);
+        runThenCheckSim(c);
     }
 }

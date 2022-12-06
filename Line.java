@@ -1,5 +1,5 @@
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.*;
+
 
 public class Line extends Thread {
     private Train t;
@@ -10,10 +10,9 @@ public class Line extends Thread {
     private int len;
     private final MBTA mbta;
     private final Log log;
-    private final Actors actors;
     private Map<Station, Map<Train, Platform>> platforms;
 
-    public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms, Actors actors) {
+    public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms) {
         this.t = t;
         this.stops = stations;
         this.cars = new HashMap<>();
@@ -26,7 +25,6 @@ public class Line extends Thread {
         this.mbta = mbta;
         this.log = log;
         this.platforms = platforms;
-        this.actors = actors;
     }
 
     @Override
@@ -34,29 +32,35 @@ public class Line extends Thread {
         Station curr = stops.get(idx);
         while (!Thread.interrupted()) {
             try {
-                // Tell everyone who needs to get off to deboard the train
-                Car c = cars.get(curr);
-                synchronized(c) { c.notifyAll(); }
-                
-                // Tell everyone who needs to get on to board the train
-                Platform p = platforms.get(curr).get(t);
-                synchronized(p) { p.notifyAll(); }
-
                 Thread.sleep(500);
 
-                // move the train
+                // find the next station
                 Station old = stops.get(idx);
                 advance();
                 curr = stops.get(idx);
+
+                // wait until station is available
                 synchronized(curr) {
                     while(!mbta.stationHasNoTrain(curr)) {
                         curr.wait();
                     }
+                    
+                    // move the train to the new station
+                    mbta.moveTrain(t, old, curr);
+                    log.train_moves(t, old, curr);
+                    
+                    // release the lock on the old station
+                    synchronized(old) { old.notifyAll(); }
+                    
+                    // Tell everyone who needs to get off to deboard the train
+                    Car c = cars.get(curr);
+                    synchronized(c) { c.notifyAll(); }
+                    
+                    // Tell everyone who needs to get on to board the train
+                    Platform p = platforms.get(curr).get(t);
+                    synchronized(p) { p.notifyAll(); }
                 }
-                mbta.moveTrain(t, old, curr);
-                log.train_moves(t, old, curr);
-                synchronized(old) { old.notifyAll(); }
-            
+                    
             } catch (InterruptedException ex) {
                 this.interrupt();
             }

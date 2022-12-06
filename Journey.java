@@ -1,11 +1,8 @@
-import java.util.concurrent.*;
 import java.util.*;
-import java.util.stream.*;
 
 public class Journey extends Thread {
     private Passenger p;
     private Queue<Station> path;
-    private boolean on_train;
     private Station firstStation;
     private Station currentStation;
     private final MBTA mbta;

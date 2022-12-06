@@ -1,5 +1,4 @@
 import java.util.*;
-import java.util.logging.*;
 import java.util.Map.Entry;
 import java.io.File;
 
@@ -16,7 +15,7 @@ public class MBTA {
     private Map<Train,     List<Station>> lines;
 
     /* UTILITY */
-    // private static final Logger MY_LOG = Logger.getLogger("MBTA");
+    private boolean checkMoves = false;
 
     // Creates an initially empty simulation
     public MBTA() { 
@@ -112,15 +111,40 @@ public class MBTA {
     }
 
     public void moveTrain(Train t, Station s1, Station s2) {
-        train_locations.put(t, s2);
+        if (checkMoves) {
+            moveTrainChecked(t, s1, s2);
+        } else {
+            moveTrainUnchecked(t, s1, s2);
+        }
     }
 
     public void boardTrain(Passenger p, Train t, Station s) {
+        if (checkMoves) {
+            boardTrainChecked(p, t, s);
+        } else {
+            boardTrainUnchecked(p, t, s);
+        }
+    }
+
+    public void deboardTrain(Passenger p, Train t, Station s) {
+        if (checkMoves) {
+            deboardTrainChecked(p, t, s);
+        } else {
+            deboardTrainUnchecked(p, t, s);
+        }
+    }
+    
+
+    public void moveTrainUnchecked(Train t, Station s1, Station s2) {
+        train_locations.put(t, s2);
+    }
+
+    public void boardTrainUnchecked(Passenger p, Train t, Station s) {
         station_passengers.get(s).remove(p);
         train_passengers.get(t).add(p);
     }
 
-    public void deboardTrain(Passenger p, Train t, Station s) {
+    public void deboardTrainUnchecked(Passenger p, Train t, Station s) {
         train_passengers.get(t).remove(p);
         station_passengers.get(s).add(p);
         stations_remaining.get(p).remove(0);
@@ -131,22 +155,22 @@ public class MBTA {
         Station start = train_locations.get(t);
 
         if (start != s1) {
-            throw new RuntimeException("Train started at the wrong station");
+            throw new RuntimeException(String.format("Train %s started at %s instead of %s", t, s1, start));
         }
 
         synchronized(train_locations) {
-            for (Station loc : train_locations.values()) {
-                if (loc == s2) {
-                    throw new RuntimeException("Train entered a station where a train already was");
+            for (Entry<Train, Station> loc : train_locations.entrySet()) {
+                if (loc.getValue() == s2) {
+                    throw new RuntimeException(String.format("Train %s entered %s, but %s was already there", t, s2, loc.getKey()));
                 }
             }
         }
 
-        moveTrain(t, s1, s2);
+        moveTrainUnchecked(t, s1, s2);
 
         Station end = train_locations.get(t);
         if (end != s2) {
-            throw new RuntimeException("Train ended at the wrong station");
+            throw new RuntimeException(String.format("Train %s ended at %s instead of %s", t, s2, end));
         }
     }
 
@@ -162,7 +186,7 @@ public class MBTA {
             throw new RuntimeException(String.format("The passenger (%s) was not at the expected station (expected %s got %s)", p, s, findPassengerStation(p)));
         }
 
-        boardTrain(p, t, s);
+        boardTrainUnchecked(p, t, s);
     }
 
     public void deboardTrainChecked(Passenger p, Train t, Station s) {
@@ -175,7 +199,7 @@ public class MBTA {
             throw new RuntimeException(String.format("The passenger (%s) was not supposed to go to the current station (wanted %s got %s)", p, passengerNextStation(p), s));
         }
 
-        deboardTrain(p, t, s);
+        deboardTrainUnchecked(p, t, s);
     }
 
     private Station findPassengerStation(Passenger p) {
@@ -196,18 +220,6 @@ public class MBTA {
         }
     }
 
-    private Train findPassengerTrain(Passenger p) {
-        synchronized(train_passengers) {
-            for (Entry<Train, List<Passenger>> train : train_passengers.entrySet()) {
-                Train t = train.getKey();
-                if(train.getValue().contains(p)) {
-                    return t;
-                }
-            }
-            return null;
-        }
-    }
-
     public boolean stationHasNoTrain(Station s) {
         synchronized(train_locations) {
             return !train_locations.values().contains(s);
@@ -221,5 +233,11 @@ public class MBTA {
     public void run(Log l) {
         Actors actors = new Actors(journies, lines, this, l);
         actors.run();
+    }
+
+    public void runChecked(Log l) {
+        checkMoves = true;
+        run(l);
+        checkMoves = false;
     }
 }
