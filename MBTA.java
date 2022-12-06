@@ -1,14 +1,19 @@
 import java.util.*;
 import java.util.Map.Entry;
+
+import javax.management.RuntimeErrorException;
+
 import java.io.File;
 
 public class MBTA {
     
     /* STATE */
-    private Map<Station, List<Passenger>> station_passengers;
-    private Map<Train,   Station>         train_locations;
-    private Map<Train,   List<Passenger>> train_passengers;
-    private Map<Passenger, List<Station>> stations_remaining;
+    private Map<Station,   List<Passenger>> station_passengers;
+    private Map<Train,     Station>         train_locations;
+    private Map<Train,     List<Passenger>> train_passengers;
+    private Map<Passenger, List<Station>>   stations_remaining;
+    private Map<Train,     Integer>         train_idx;
+    private Map<Train,     Integer>         train_dir;
 
     /* CONFIGURATION */
     private Map<Passenger, List<Station>> journies;
@@ -23,6 +28,8 @@ public class MBTA {
         train_locations    = Collections.synchronizedMap(new HashMap<>());
         train_passengers   = Collections.synchronizedMap(new HashMap<>());
         stations_remaining = Collections.synchronizedMap(new HashMap<>());
+        train_idx          = Collections.synchronizedMap(new HashMap<>());
+        train_dir          = Collections.synchronizedMap(new HashMap<>());
         
         journies = new HashMap<>();
         lines    = new HashMap<>();
@@ -40,7 +47,9 @@ public class MBTA {
         });
         
         train_locations.put(t, lines.get(t).get(0));
+        train_idx.put(t, 0);
         train_passengers.put(t, new ArrayList<>());
+        train_dir.put(t, 1);
     }
 
     // Adds a new planned journey to the simulation
@@ -94,7 +103,9 @@ public class MBTA {
         train_locations.clear();
         train_passengers.clear();
         stations_remaining.clear();
-        
+        train_idx.clear();
+        train_dir.clear();
+
         journies.clear();
         lines.clear();
     }
@@ -142,6 +153,23 @@ public class MBTA {
     
 
     public void moveTrainUnchecked(Train t, Station s1, Station s2) {
+        int idx = train_idx.get(t);
+        int dir = train_dir.get(t);
+        int len = lines.get(t).size();
+        
+        idx += dir;
+        
+        if (idx >= len) {
+            dir *= -1;
+            idx = len - 2;
+        } else if (idx < 0) {
+            dir *= -1;
+            idx = 1;
+        }
+        
+        train_idx.put(t, idx);
+        train_dir.put(t, dir);
+
         train_locations.put(t, s2);
     }
 
@@ -157,7 +185,6 @@ public class MBTA {
     }
 
     public void moveTrainChecked(Train t, Station s1, Station s2) {
-
         Station start = train_locations.get(t);
 
         if (start != s1) {
@@ -171,8 +198,14 @@ public class MBTA {
                 }
             }
         }
+        
 
         moveTrainUnchecked(t, s1, s2);
+
+        Station expected_station = lines.get(t).get(train_idx.get(t));
+        if (s2 != expected_station) {
+            throw new RuntimeException(String.format("Train %s ended at %s instead of the next stop in the line %s", t, s2, expected_station));
+        }
 
         Station end = train_locations.get(t);
         if (end != s2) {

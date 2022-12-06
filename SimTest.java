@@ -97,9 +97,9 @@ public class SimTest {
                 "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard"
             )
         );
-
-        for(int i = 0; i < 10; i++) {
-            // System.err.printf("Test #%d\n", i);
+        int i = 0;
+        while(true) {
+            System.err.printf("Test #%d\n", ++i);
             runAndCheckSim(c, 10);
         }
     }
@@ -151,7 +151,7 @@ public class SimTest {
         """);
 
         for (int i = 0; i < 10; i++) {
-            // System.err.println("TEST # " + i);
+            System.err.println("TEST # " + i);
             runThenCheckSim(c, 20);
         }
     }

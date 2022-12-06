@@ -566,4 +566,34 @@ public class VerifyTests {
 
         Verify.verify(mbta, log);
     }
+
+    @Test public void skipStation() {
+        MBTA mbta = new MBTA();
+
+        Station a = Station.make("a");
+        Station b = Station.make("b");
+        Station c = Station.make("c");
+        Station d = Station.make("d");
+
+        Train t = Train.make("testLine");
+
+        List<String> line = List.of("a", "b", "c", "d");
+
+        mbta.addLine("testLine", line);
+
+        Log log = new Log();
+
+        log.train_moves(t, a, b);
+        log.train_moves(t, b, c);
+        log.train_moves(t, c, d);
+        log.train_moves(t, d, c);
+        log.train_moves(t, c, b);
+        log.train_moves(t, b, a);
+        log.train_moves(t, a, b);
+        log.train_moves(t, b, d);
+        log.train_moves(t, d, c);
+        assertThrows(RuntimeException.class, () -> {
+            Verify.verify(mbta, log);
+        });
+    }
 }

@@ -35,7 +35,7 @@ public class Actors {
         journies.values().forEach(j -> j.start());
         lines.values().forEach(l -> l.start());
         journies.values().forEach(j -> uncheckedJoin(j));
-        // System.err.println("INTERRUPTING LINES"); // System.err.flush();
+        System.err.println("INTERRUPTING LINES"); System.err.flush();
         lines.values().forEach(l -> l.interrupt());
         lines.values().forEach(l -> uncheckedJoin(l));
     }
