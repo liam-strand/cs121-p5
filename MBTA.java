@@ -19,7 +19,13 @@ public class MBTA {
 
     // Creates an initially empty simulation
     public MBTA() { 
-        reset();
+        station_passengers = Collections.synchronizedMap(new HashMap<>());
+        train_locations    = Collections.synchronizedMap(new HashMap<>());
+        train_passengers   = Collections.synchronizedMap(new HashMap<>());
+        stations_remaining = Collections.synchronizedMap(new HashMap<>());
+        
+        journies = new HashMap<>();
+        lines    = new HashMap<>();
     }
 
     // Adds a new transit line with given name and stations
@@ -67,7 +73,7 @@ public class MBTA {
             Station start = line.getValue().get(0);
 
             if (train_locations.get(t) != start) {
-                throw new RuntimeException(String.format("Train %s was not at %s", t, start));
+                throw new RuntimeException(String.format("Train %s was at %s not at %s", t, train_locations.get(t), start));
             }
         }
     }
@@ -84,13 +90,13 @@ public class MBTA {
 
     // reset to an empty simulation
     public void reset() {
-        station_passengers = Collections.synchronizedMap(new HashMap<>());
-        train_locations    = Collections.synchronizedMap(new HashMap<>());
-        train_passengers   = Collections.synchronizedMap(new HashMap<>());
-        stations_remaining = Collections.synchronizedMap(new HashMap<>());
+        station_passengers.clear();
+        train_locations.clear();
+        train_passengers.clear();
+        stations_remaining.clear();
         
-        journies = new HashMap<>();
-        lines    = new HashMap<>();
+        journies.clear();
+        lines.clear();
     }
 
     // adds simulation configuration from a file
@@ -231,13 +237,21 @@ public class MBTA {
     }
 
     public void run(Log l) {
-        Actors actors = new Actors(journies, lines, this, l);
+        runWithWait(l, 500);
+    }
+
+    public void runWithWait(Log l, int wait) {
+        Actors actors = new Actors(journies, lines, this, l, wait);
         actors.run();
     }
 
     public void runChecked(Log l) {
+        runCheckedWithWait(l, 500);
+    }
+
+    public void runCheckedWithWait(Log l, int wait) {
         checkMoves = true;
-        run(l);
+        runWithWait(l, wait);
         checkMoves = false;
     }
 }

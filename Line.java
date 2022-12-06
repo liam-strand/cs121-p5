@@ -8,11 +8,13 @@ public class Line extends Thread {
     private int idx;
     private int dir;
     private int len;
-    private final MBTA mbta;
-    private final Log log;
-    private Map<Station, Map<Train, Platform>> platforms;
+    private static MBTA mbta;
+    private static Log log;
+    private static Map<Station, Map<Train, Platform>> platforms;
 
-    public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms) {
+    private static int wait_time;
+
+    public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms, int wait_time) {
         this.t = t;
         this.stops = stations;
         this.cars = new HashMap<>();
@@ -25,46 +27,70 @@ public class Line extends Thread {
         this.mbta = mbta;
         this.log = log;
         this.platforms = platforms;
+
+        this.wait_time = wait_time;
+    }
+
+    public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms) {
+        this(t, stations, mbta, log, platforms, 500);
     }
 
     @Override
     public void run() {
         Station curr = stops.get(idx);
-        while (!Thread.interrupted()) {
+        curr.lock(t);
+        while (!this.isInterrupted()) {
             try {
-                Thread.sleep(500);
-
                 // find the next station
-                Station old = stops.get(idx);
+                Station old = curr;
                 advance();
                 curr = stops.get(idx);
-
+                
                 // wait until station is available
-                synchronized(curr) {
-                    while(!mbta.stationHasNoTrain(curr)) {
-                        curr.wait();
-                    }
-                    
-                    // move the train to the new station
-                    mbta.moveTrain(t, old, curr);
-                    log.train_moves(t, old, curr);
-                    
-                    // release the lock on the old station
-                    synchronized(old) { old.notifyAll(); }
-                    
-                    // Tell everyone who needs to get off to deboard the train
-                    Car c = cars.get(curr);
-                    synchronized(c) { c.notifyAll(); }
-                    
-                    // Tell everyone who needs to get on to board the train
-                    Platform p = platforms.get(curr).get(t);
-                    synchronized(p) { p.notifyAll(); }
+                // System.err.printf("%s waiting for %s to open\n", t, curr);
+                curr.lock(t);
+
+                if (this.isInterrupted()) {
+                    // System.err.printf("%s INTERRUPTED WITH LOCK\n", t, curr);
+                    this.interrupt();
+                    old.unlock(t);
+                    curr.unlock(t);
+                    return;
                 }
-                    
+
+                // System.err.printf("%s at %s\n", t, curr);
+                // move the train to the new station
+                log.train_moves(t, old, curr);
+                mbta.moveTrain(t, old, curr);
+                
+                // release the lock on the old station
+                // System.err.printf("%s allowing other trains to enter %s\n", t, old);
+                old.unlock(t);
+    
+                // Tell everyone who needs to get off to deboard the train
+                // System.err.printf("%s deboarding at %s\n", t, curr);
+                Car c = cars.get(curr);
+                synchronized(c) { c.notifyAll(); }
+                
+                // Tell everyone who needs to get on to board the train
+                // System.err.printf("%s boarding at %s\n", t, curr);
+                Platform p = platforms.get(curr).get(t);
+                synchronized(p) { p.notifyAll(); }
+    
+                // wait at the station
+                // System.err.printf("%s waiting in %s\n", t, curr);
+                Thread.sleep(wait_time);
+                
+                // System.err.printf("%s leaving %s\n", t, curr);
             } catch (InterruptedException ex) {
+                // System.err.printf("%s CAUGHT INTERRUPTION\n", t);
                 this.interrupt();
+                curr.unlock(t);
+                return;
             }
         }
+        // System.err.printf("%s INTERUPTED OUT Of LOOP\n", t);
+        curr.unlock(t);
     }
 
     private void advance() {
@@ -81,5 +107,9 @@ public class Line extends Thread {
 
     public Car getCar(Station s) {
         return cars.get(s);
+    }
+
+    public Train getTrain() {
+        return t;
     }
 }

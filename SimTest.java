@@ -15,7 +15,8 @@ public class SimTest {
 
     @Rule public TemporaryFolder sandbox = new TemporaryFolder();
 
-    private void runThenCheckSim(Config c) {
+    private void runThenCheckSim(Config c) { runThenCheckSim(c, 500); }
+    private void runThenCheckSim(Config c, int wait) {
         try {
             MBTA mbta = new MBTA();
             
@@ -27,7 +28,7 @@ public class SimTest {
     
             Log log = new Log();
     
-            mbta.run(log);
+            mbta.runWithWait(log, wait);
     
             mbta.reset();
             mbta.loadConfig(configFile.getPath());
@@ -37,7 +38,8 @@ public class SimTest {
         }
     }
 
-    private void runAndCheckSim(Config c) {
+    private void runAndCheckSim(Config c) { runAndCheckSim(c, 500); }
+    private void runAndCheckSim(Config c, int wait) {
         try {
             MBTA mbta = new MBTA();
             
@@ -49,7 +51,7 @@ public class SimTest {
     
             Log log = new Log();
     
-            mbta.runChecked(log);
+            mbta.runCheckedWithWait(log, wait);
     
             mbta.reset();
             mbta.loadConfig(configFile.getPath());
@@ -78,9 +80,28 @@ public class SimTest {
             "Cece", List.of("Davis", "Harvard", "SMFA")
         );
 
-        // c.toFile(new File ("/Users/liamstrand/Desktop/Tufts/Junior/cs121/p5/small.json"));
-
         runThenCheckSim(c);
+    }
+
+    @Test public void harvardKillerTest() {
+        Config c = new Config();
+        c.lines = Map.of(
+            "blue",      List.of("Davis",   "Porter",  "Harvard"),
+            "red",       List.of("MIT",     "Central", "Harvard"),
+            "magenta",   List.of("Harvard", "Tufts",   "Northeastern"),
+            "chartruse", List.of("SMFA",    "Harvard", "Hillbrook"),
+            "purple",    List.of("CoOP",    "Harvard", "Charles")
+        );
+        c.trips = Map.of(
+            "liam", List.of(
+                "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard"
+            )
+        );
+
+        for(int i = 0; i < 10; i++) {
+            // System.err.printf("Test #%d\n", i);
+            runAndCheckSim(c, 10);
+        }
     }
 
     @Test public void harvardStressTest() {
@@ -89,25 +110,53 @@ public class SimTest {
             "blue",      List.of("Davis",   "Porter",  "Harvard"),
             "red",       List.of("MIT",     "Central", "Harvard"),
             "magenta",   List.of("Harvard", "Tufts",   "Northeastern"),
-            "chartruse", List.of("CoOP",    "Harvard", "Charles")
+            "chartruse", List.of("SMFA",    "Harvard", "Hillbrook"),
+            "purple",    List.of("CoOP",    "Harvard", "Charles")
         );
         c.trips = Map.of(
             "liam", List.of(
-                "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard"
+                "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard"
             )
         );
 
-        runAndCheckSim(c);
+        runAndCheckSim(c, 100);
     }
     
     @Test public void gradescopeElephantTestRep() {
+
+        Config c = Config.fromJsonString("""
+            {
+                "lines": {
+                    "blue":   ["R", "S", "P", "N", "M", "F"],
+                    "green":  ["H", "G", "E", "B", "C"],
+                    "orange": ["L", "K", "J", "I", "H"],
+                    "purple": ["O", "N", "Q", "S", "T", "L"],
+                    "red":    ["A", "B", "D", "G", "F"]
+                },
+                "trips": {
+                    "Aardvark": ["R", "S", "T"],
+                    "Bear":     ["R", "F", "G", "H"],
+                    "Cow":      ["R", "S", "L", "H"],
+                    "Dog":      ["A", "B", "G"],
+                    "Elephant": ["D", "F", "N", "T"],
+                    "Frog":     ["O", "N", "F", "G", "H"],
+                    "Giraffe":  ["O", "L", "H"],
+                    "Horse":    ["M", "N"],
+                    "Iguana":   ["P", "F", "B", "C"],
+                    "Jaguar":   ["H", "L"],
+                    "Koala":    ["L", "T"],
+                    "Lamprey":  ["L", "H", "G", "F", "S", "T"]
+                }
+            }
+        """);
+
         for (int i = 0; i < 10; i++) {
-            gradescopeElephantTest();
+            // System.err.println("TEST # " + i);
+            runThenCheckSim(c, 20);
         }
     }
 
     @Test public void gradescopeElephantTest() {
-
         Config c = Config.fromJsonString("""
             {
                 "lines": {

@@ -65,9 +65,6 @@ public class Journey extends Thread {
         Collection<Platform> s1_platforms = platforms.get(s1).values();
         Collection<Platform> s2_platforms = platforms.get(s2).values();
 
-        // System.err.println(s1_platforms);
-        // System.err.println(s2_platforms);
-
         for (Platform p1 : s1_platforms) {
             Train t = p1.getTrain();
             for (Platform p2 : s2_platforms) {
