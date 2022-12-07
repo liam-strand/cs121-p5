@@ -596,4 +596,265 @@ public class VerifyTests {
             Verify.verify(mbta, log);
         });
     }
+
+    @Test public void gradescopeLamprey() {
+
+        Config c = Config.fromJsonString("""
+            {
+                "lines": {
+                  "blue": ["R", "S", "P", "N", "M", "F"],
+                  "green": ["H", "G", "E", "B", "C"],
+                  "orange": ["L", "K", "J", "I", "H"],
+                  "purple": ["O", "N", "Q", "S", "T", "L"],
+                  "red": ["A", "B", "D", "G", "F"]
+                },
+                "trips": {
+                  "Aardvark": ["R", "S", "T"],
+                  "Bear": ["R", "F", "G", "H"],
+                  "Cow": ["R", "S", "L", "H"],
+                  "Dog": ["A", "B", "G"],
+                  "Elephant": ["D", "F", "N", "T"],
+                  "Frog": ["O", "N", "F", "G", "H"],
+                  "Giraffe": ["O", "L", "H"],
+                  "Horse": ["M", "N"],
+                  "Iguana": ["P", "F", "B", "C"],
+                  "Jaguar": ["H", "L"],
+                  "Koala": ["L", "T"],
+                  "Lamprey": ["L", "H", "G", "F", "S", "T"]
+                }
+              }
+        """);
+        File f = newFile();
+        c.toFile(f);
+
+        MBTA letters = new MBTA();
+        letters.loadConfig(f.getAbsolutePath());
+
+        Passenger Lamprey = Passenger.make("Lamprey");
+        Passenger Aardvark = Passenger.make("Aardvark");
+        Passenger Jaguar = Passenger.make("Jaguar");
+        Passenger Iguana = Passenger.make("Iguana");
+        Passenger Giraffe = Passenger.make("Giraffe");
+        Passenger Dog = Passenger.make("Dog");
+        Passenger Koala = Passenger.make("Koala");
+        Passenger Frog = Passenger.make("Frog");
+        Passenger Cow = Passenger.make("Cow");
+        Passenger Elephant = Passenger.make("Elephant");
+        Passenger Bear = Passenger.make("Bear");
+        Passenger Horse = Passenger.make("Horse");
+
+        Train red = Train.make("red");
+        Train green = Train.make("green");
+        Train blue = Train.make("blue");
+        Train purple = Train.make("purple");
+        Train orange = Train.make("orange");
+
+        Station L = Station.make("L");
+        Station R = Station.make("R");
+        Station N = Station.make("N");
+        Station D = Station.make("D");
+        Station I = Station.make("I");
+        Station G = Station.make("G");
+        Station H = Station.make("H");
+        Station S = Station.make("S");
+        Station C = Station.make("C");
+        Station O = Station.make("O");
+        Station B = Station.make("B");
+        Station A = Station.make("A");
+        Station F = Station.make("F");
+        Station M = Station.make("M");
+        Station P = Station.make("P");
+        Station E = Station.make("E");
+        Station T = Station.make("T");
+        Station Q = Station.make("Q");
+        Station J = Station.make("J");
+        Station K = Station.make("K");
+
+        Log log = new Log();
+
+        log.passenger_boards(Frog, purple, O);
+        log.train_moves(orange, L, K);
+        log.train_moves(green, H, G);
+        log.train_moves(purple, O, N);
+        log.train_moves(red, A, B);
+        log.train_moves(blue, R, S);
+        log.passenger_boards(Giraffe, purple, O);
+        log.passenger_boards(Aardvark, blue, R);
+        log.passenger_boards(Dog, red, A);
+        log.passenger_boards(Bear, blue, R);
+        log.passenger_deboards(Dog, red, B);
+        log.passenger_boards(Lamprey, orange, L);
+        log.passenger_boards(Cow, blue, R);
+        log.passenger_boards(Dog, red, B);
+        log.passenger_deboards(Cow, blue, S);
+        log.passenger_deboards(Aardvark, blue, S);
+        log.passenger_deboards(Frog, purple, N);
+        log.train_moves(red, B, D);
+        log.train_moves(green, G, E);
+        log.passenger_boards(Elephant, red, D);
+        log.train_moves(purple, N, Q);
+        log.train_moves(blue, S, P);
+        log.passenger_boards(Iguana, blue, P);
+        log.train_moves(orange, K, J);
+        log.train_moves(red, D, G);
+        log.passenger_deboards(Dog, red, G);
+        log.train_moves(green, E, B);
+        log.train_moves(purple, Q, S);
+        log.passenger_boards(Cow, purple, S);
+        log.passenger_boards(Aardvark, purple, S);
+        log.train_moves(blue, P, N);
+        log.passenger_boards(Frog, blue, N);
+        log.train_moves(orange, J, I);
+        log.train_moves(red, G, F);
+        log.passenger_deboards(Elephant, red, F);
+        log.train_moves(purple, S, T);
+        log.train_moves(green, B, C);
+        log.passenger_deboards(Aardvark, purple, T);
+        log.train_moves(blue, N, M);
+        log.passenger_boards(Horse, blue, M);
+        log.train_moves(orange, I, H);
+        log.passenger_deboards(Lamprey, orange, H);
+        log.passenger_boards(Jaguar, orange, H);
+        log.train_moves(red, F, G);
+        log.train_moves(green, C, B);
+        log.train_moves(purple, T, L);
+        log.passenger_deboards(Giraffe, purple, L);
+        log.passenger_deboards(Cow, purple, L);
+        log.train_moves(orange, H, I);
+        log.train_moves(blue, M, F);
+        log.passenger_boards(Koala, purple, L);
+        log.passenger_deboards(Bear, blue, F);
+        log.passenger_deboards(Frog, blue, F);
+        log.passenger_deboards(Iguana, blue, F);
+        log.passenger_boards(Elephant, blue, F);
+        log.train_moves(red, G, D);
+        log.train_moves(green, B, E);
+        log.train_moves(purple, L, T);
+        log.passenger_deboards(Koala, purple, T);
+        log.train_moves(orange, I, J);
+        log.train_moves(blue, F, M);
+        log.train_moves(red, D, B);
+        log.train_moves(green, E, G);
+        log.train_moves(purple, T, S);
+        log.train_moves(orange, J, K);
+        log.train_moves(blue, M, N);
+        log.passenger_deboards(Horse, blue, N);
+        log.passenger_deboards(Elephant, blue, N);
+        log.train_moves(red, B, A);
+        log.train_moves(green, G, H);
+        log.passenger_boards(Lamprey, green, H);
+        log.train_moves(purple, S, Q);
+        log.train_moves(orange, K, L);
+        log.passenger_deboards(Jaguar, orange, L);
+        log.train_moves(blue, N, P);
+        log.passenger_boards(Giraffe, orange, L);
+        log.passenger_boards(Cow, orange, L);
+        log.train_moves(red, A, B);
+        log.train_moves(green, H, G);
+        log.passenger_deboards(Lamprey, green, G);
+        log.train_moves(purple, Q, N);
+        log.passenger_boards(Elephant, purple, N);
+        log.train_moves(blue, P, S);
+        log.train_moves(orange, L, K);
+        log.train_moves(red, B, D);
+        log.train_moves(green, G, E);
+        log.train_moves(purple, N, O);
+        log.train_moves(orange, K, J);
+        log.train_moves(blue, S, R);
+        log.train_moves(red, D, G);
+        log.passenger_boards(Lamprey, red, G);
+        log.train_moves(green, E, B);
+        log.train_moves(purple, O, N);
+        log.train_moves(orange, J, I);
+        log.train_moves(blue, R, S);
+        log.train_moves(red, G, F);
+        log.passenger_deboards(Lamprey, red, F);
+        log.passenger_boards(Bear, red, F);
+        log.train_moves(green, B, C);
+        log.passenger_boards(Iguana, red, F);
+        log.passenger_boards(Frog, red, F);
+        log.train_moves(purple, N, Q);
+        log.train_moves(orange, I, H);
+        log.passenger_deboards(Cow, orange, H);
+        log.passenger_deboards(Giraffe, orange, H);
+        log.train_moves(blue, S, P);
+        log.train_moves(green, C, B);
+        log.train_moves(red, F, G);
+        log.passenger_deboards(Bear, red, G);
+        log.passenger_deboards(Frog, red, G);
+        log.train_moves(purple, Q, S);
+        log.train_moves(orange, H, I);
+        log.train_moves(blue, P, N);
+        log.train_moves(green, B, E);
+        log.train_moves(red, G, D);
+        log.train_moves(purple, S, T);
+        log.passenger_deboards(Elephant, purple, T);
+        log.train_moves(orange, I, J);
+        log.train_moves(blue, N, M);
+        log.train_moves(red, D, B);
+        log.train_moves(purple, T, L);
+        log.train_moves(green, E, G);
+        log.passenger_deboards(Iguana, red, B);
+        log.passenger_boards(Bear, green, G);
+        log.passenger_boards(Frog, green, G);
+        log.train_moves(orange, J, K);
+        log.train_moves(blue, M, F);
+        log.passenger_boards(Lamprey, blue, F);
+        log.train_moves(purple, L, T);
+        log.train_moves(green, G, H);
+        log.train_moves(red, B, A);
+        log.passenger_deboards(Frog, green, H);
+        log.passenger_deboards(Bear, green, H);
+        log.train_moves(orange, K, L);
+        log.train_moves(blue, F, M);
+        log.train_moves(purple, T, S);
+        log.train_moves(red, A, B);
+        log.train_moves(green, H, G);
+        log.train_moves(blue, M, N);
+        log.train_moves(orange, L, K);
+        log.train_moves(purple, S, Q);
+        log.train_moves(red, B, D);
+        log.train_moves(blue, N, P);
+        log.train_moves(green, G, E);
+        log.train_moves(orange, K, J);
+        log.train_moves(purple, Q, N);
+        log.train_moves(red, D, G);
+        log.train_moves(blue, P, S);
+        log.passenger_deboards(Lamprey, blue, S);
+        log.train_moves(green, E, B);
+        log.passenger_boards(Iguana, green, B);
+        log.train_moves(orange, J, I);
+        log.train_moves(red, G, F);
+        log.train_moves(blue, S, R);
+        log.train_moves(purple, N, O);
+        log.train_moves(green, B, C);
+        log.passenger_deboards(Iguana, green, C);
+        log.train_moves(orange, I, H);
+        log.train_moves(red, F, G);
+        log.train_moves(orange, H, I);
+        log.train_moves(blue, R, S);
+        log.train_moves(green, C, B);
+        log.train_moves(purple, O, N);
+        log.train_moves(orange, I, J);
+        log.train_moves(red, G, D);
+        log.train_moves(green, B, E);
+        log.train_moves(blue, S, P);
+        log.train_moves(purple, N, Q);
+        log.train_moves(orange, J, K);
+        log.train_moves(red, D, B);
+        log.train_moves(blue, P, N);
+        log.train_moves(green, E, G);
+        log.train_moves(purple, Q, S);
+        log.passenger_boards(Lamprey, purple, S);
+        log.train_moves(orange, K, L);
+        log.train_moves(red, B, A);
+        log.train_moves(green, G, H);
+        log.train_moves(blue, N, M);
+        log.train_moves(purple, S, T);
+        log.passenger_deboards(Lamprey, purple, T);
+
+        assertThrows(RuntimeException.class, () -> {
+            Verify.verify(letters, log);
+        });
+    }
 }

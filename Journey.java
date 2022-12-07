@@ -30,31 +30,31 @@ public class Journey extends Thread {
                 Train t = plat.getTrain();
 
                 // Wait on the platform
+                System.err.printf("%s waiting at %s\n", p, currentStation);
                 synchronized(plat) { 
-                    while(mbta.findTrain(t) != currentStation) {
-                        plat.wait(); 
-                    }
+                    do { plat.wait(); } while(mbta.findTrain(t) != currentStation);
+                    
+                    System.err.printf("%s boarding at %s\n", p, currentStation);
+                    // Board the train when it arrives
+                    log.passenger_boards(p, t, currentStation);
+                    mbta.boardTrain(p, t, currentStation);
                 }
-
-                // Board the train when it arrives
-                mbta.boardTrain(p, t, currentStation);
-                log.passenger_boards(p, t, currentStation);
-
+                
                 // Find what car to wait in
                 Car c = actors.getLine(t).getCar(path.peek());
                 
                 currentStation = path.poll();
-
+                
+                System.err.printf("%s waiting for %s\n", p, currentStation);
                 // wait in that car
                 synchronized(c) { 
-                    while(mbta.findTrain(t) != currentStation) {
-                        c.wait();
-                    }
+                    do { c.wait(); } while(mbta.findTrain(t) != currentStation);
+                    
+                    System.err.printf("%s deboarding at %s\n", p, currentStation);
+                    // deboard the car
+                    log.passenger_deboards(p, t, currentStation);
+                    mbta.deboardTrain(p, t, currentStation);
                 }
-
-                // deboard the car
-                mbta.deboardTrain(p, t, currentStation);
-                log.passenger_deboards(p, t, currentStation);
             }
         } catch (InterruptedException ex) {
             throw new RuntimeException("Journey interrupted");

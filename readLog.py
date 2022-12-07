@@ -1,7 +1,7 @@
 from pprint import pprint
 
 def main():
-    with open("./trainCrash.txt", "r") as f:
+    with open("./test.txt", "r") as f:
         file = f.readlines()
 
     lines: dict[str, list[str]] = {}

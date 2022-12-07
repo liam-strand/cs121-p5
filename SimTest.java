@@ -98,9 +98,9 @@ public class SimTest {
             )
         );
         int i = 0;
-        while(true) {
+        while(i < 20) {
             System.err.printf("Test #%d\n", ++i);
-            runAndCheckSim(c, 10);
+            runThenCheckSim(c, 10);
         }
     }
 
@@ -181,6 +181,36 @@ public class SimTest {
                     "Lamprey":  ["L", "H", "G", "F", "S", "T"]
                 }
             }
+        """);
+
+        runThenCheckSim(c);
+    }
+
+    @Test public void lampreyGradescopeTest() {
+        Config c = Config.fromJsonString("""
+            {
+                "lines": {
+                  "blue": ["R", "S", "P", "N", "M", "F"],
+                  "green": ["H", "G", "E", "B", "C"],
+                  "orange": ["L", "K", "J", "I", "H"],
+                  "purple": ["O", "N", "Q", "S", "T", "L"],
+                  "red": ["A", "B", "D", "G", "F"]
+                },
+                "trips": {
+                  "Aardvark": ["R", "S", "T"],
+                  "Bear": ["R", "F", "G", "H"],
+                  "Cow": ["R", "S", "L", "H"],
+                  "Dog": ["A", "B", "G"],
+                  "Elephant": ["D", "F", "N", "T"],
+                  "Frog": ["O", "N", "F", "G", "H"],
+                  "Giraffe": ["O", "L", "H"],
+                  "Horse": ["M", "N"],
+                  "Iguana": ["P", "F", "B", "C"],
+                  "Jaguar": ["H", "L"],
+                  "Koala": ["L", "T"],
+                  "Lamprey": ["L", "H", "G", "F", "S", "T"]
+                }
+              }
         """);
 
         runThenCheckSim(c);
