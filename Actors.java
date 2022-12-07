@@ -32,12 +32,12 @@ public class Actors {
     }
 
     public void run() {
-        lines.values().forEach(l -> l.start());
         journies.values().forEach(j -> j.start());
+        lines.values().forEach(l -> l.start());
         journies.values().forEach(j -> uncheckedJoin(j));
-        System.err.println("INTERRUPTING LINES"); System.err.flush();
-        lines.values().forEach(l -> l.interrupt());
-        lines.values().forEach(l -> uncheckedJoin(l));
+        // System.err.println("INTERRUPTING LINES");
+        // lines.values().forEach(l -> l.interrupt());
+        // lines.values().forEach(l -> uncheckedJoin(l));
     }
 
     private void uncheckedJoin(Thread t) {
