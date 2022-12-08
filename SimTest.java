@@ -97,9 +97,8 @@ public class SimTest {
                 "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard", "MIT", "Harvard", "Davis", "Harvard"
             )
         );
-        int i = 0;
-        while(i < 20) {
-            System.err.printf("Test #%d\n", ++i);
+        for(int i = 0; i < 20; i++) {
+            // System.err.printf("Test #%d\n", i);
             runThenCheckSim(c, 10);
         }
     }

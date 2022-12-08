@@ -7,7 +7,7 @@ public class Station extends Entity {
 
     private Station(String name) { super(name); }
 
-    private ReentrantLock lock = new ReentrantLock(true);
+    private ReentrantLock lock = new ReentrantLock();
 
     public static Station make(String name) {
         Station s = stations.get(name);
@@ -22,11 +22,11 @@ public class Station extends Entity {
 
     public void lock(Train t) {
         lock.lock();
-        System.err.printf("%s locked %s\n", t, this);
+        // System.err.printf("%s locked %s\n", t, this);
     }
 
     public void unlock(Train t) {
-        System.err.printf("%s unlocking %s\n", t, this);
+        // System.err.printf("%s unlocking %s\n", t, this);
         lock.unlock();
     }
 }

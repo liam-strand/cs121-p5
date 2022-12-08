@@ -30,11 +30,11 @@ public class Journey extends Thread {
                 Train t = plat.getTrain();
 
                 // Wait on the platform
-                System.err.printf("%s waiting at %s\n", p, currentStation);
+                // System.err.printf("%s waiting at %s\n", p, currentStation);
                 synchronized(plat) { 
                     do { plat.wait(); } while(mbta.findTrain(t) != currentStation);
                     
-                    System.err.printf("%s boarding at %s\n", p, currentStation);
+                    // System.err.printf("%s boarding at %s\n", p, currentStation);
                     // Board the train when it arrives
                     log.passenger_boards(p, t, currentStation);
                     mbta.boardTrain(p, t, currentStation);
@@ -45,12 +45,12 @@ public class Journey extends Thread {
                 
                 currentStation = path.poll();
                 
-                System.err.printf("%s waiting for %s\n", p, currentStation);
+                // System.err.printf("%s waiting for %s\n", p, currentStation);
                 // wait in that car
                 synchronized(c) { 
                     do { c.wait(); } while(mbta.findTrain(t) != currentStation);
                     
-                    System.err.printf("%s deboarding at %s\n", p, currentStation);
+                    // System.err.printf("%s deboarding at %s\n", p, currentStation);
                     // deboard the car
                     log.passenger_deboards(p, t, currentStation);
                     mbta.deboardTrain(p, t, currentStation);
