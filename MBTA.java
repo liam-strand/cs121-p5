@@ -319,7 +319,7 @@ public class MBTA {
         Logger log = Logger.getLogger("metroSim");
         log.setUseParentHandlers(false);
         Arrays.stream(log.getHandlers()).forEach(h -> log.removeHandler(h));
-        log.setLevel(Level.OFF);
+        log.setLevel(Level.ALL);
         Handler h = new ConsoleHandler();
         h.setLevel(log.getLevel());
         h.setFormatter(f);

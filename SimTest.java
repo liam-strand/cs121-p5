@@ -39,6 +39,7 @@ public class SimTest {
         }
     }
 
+    @SuppressWarnings("unused")
     private void runAndCheckSim(Config c) { runAndCheckSim(c, 500); }
     private void runAndCheckSim(Config c, int wait) {
         try {

@@ -5,7 +5,6 @@
  * 
  * Runs some affirmative and negative tests on the log verifier.
  */
-// @SuppressWarnings("unused")
 
 import java.io.*;
 import java.util.*;
@@ -18,7 +17,6 @@ import static org.junit.Assert.assertThrows;
 
 public class VerifyTests {
     
-
     public static boolean sim_implemented = true;
 
     @BeforeClass public static void checkIfSimIsImplemented() {
