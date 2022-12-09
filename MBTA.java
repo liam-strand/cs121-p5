@@ -1,7 +1,17 @@
+/* MBTA.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * Contains the simulation state and provides thread-safe methods to access and
+ * modify that state.
+ */
+
 import java.util.*;
 import java.util.Map.Entry;
 
-import javax.management.RuntimeErrorException;
+import java.util.logging.*;
+import java.util.logging.Formatter;
 
 import java.io.File;
 
@@ -33,6 +43,8 @@ public class MBTA {
         
         journies = new HashMap<>();
         lines    = new HashMap<>();
+
+        configureLog();
     }
 
     // Adds a new transit line with given name and stations
@@ -286,5 +298,31 @@ public class MBTA {
         checkMoves = true;
         runWithWait(l, wait);
         checkMoves = false;
+    }
+
+    private void configureLog() {
+        Formatter f = new Formatter(){
+            public String format(LogRecord record) {
+                return String.format(
+                    "%d | %s | %s#%s | %d\n%s: %s\n", 
+                    record.getMillis() % 100000, 
+                    record.getLoggerName(),
+                    record.getSourceClassName(),
+                    record.getSourceMethodName(),
+                    record.getLongThreadID(),
+                    record.getLevel(),
+                    record.getMessage()
+                );
+            }
+        };
+
+        Logger log = Logger.getLogger("metroSim");
+        log.setUseParentHandlers(false);
+        Arrays.stream(log.getHandlers()).forEach(h -> log.removeHandler(h));
+        log.setLevel(Level.OFF);
+        Handler h = new ConsoleHandler();
+        h.setLevel(log.getLevel());
+        h.setFormatter(f);
+        log.addHandler(h);
     }
 }

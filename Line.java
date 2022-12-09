@@ -1,5 +1,14 @@
-import java.util.logging.*;
+/* Line.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * The thread that represents a train moving through stations, telling passengers
+ * to get on/off at the appropriate stops.
+ */
+
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class Line extends Thread {
@@ -12,11 +21,11 @@ public class Line extends Thread {
     private static MBTA mbta;
     private static Log log;
     private static Map<Station, Map<Train, Platform>> platforms;
-    private int count = 0;
+    private Station curr;
 
     private static int wait_time;
 
-    private static Logger logger = Logger.getLogger(Line.class.getName());
+    private static Logger logger = Logger.getLogger("metroSim");
 
     public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms, int wait_time) {
         this.t = t;
@@ -31,11 +40,9 @@ public class Line extends Thread {
         this.mbta = mbta;
         this.log = log;
         this.platforms = platforms;
+        this.curr = stops.get(idx);
 
         this.wait_time = wait_time;
-
-        logger.setLevel(Level.OFF);
-        Arrays.stream(logger.getHandlers()).forEach( h -> h.setLevel(logger.getLevel()));
     }
 
     public Line(Train t, List<Station> stations, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms) {
@@ -44,8 +51,7 @@ public class Line extends Thread {
 
     @Override
     public void run() {
-        Station curr = stops.get(idx);
-        curr.lock(t);
+        curr.lock();
         while (!this.isInterrupted()) {
             try {
                 // find the next station
@@ -53,53 +59,51 @@ public class Line extends Thread {
                 advance();
                 curr = stops.get(idx);
                 
-                logger.warning(String.format("%s at thread %d it %d", t, this.getId(), count++));
-
                 // wait until station is available
-                logger.warning(String.format("%s waiting for %s to open\n", t, curr));
-                curr.lock(t);
+                logger.fine(() -> String.format("%s waiting for %s to open\n", t, curr));
+                curr.lock();
 
                 if (this.isInterrupted()) {
-                    logger.finer(String.format("%s INTERRUPTED WITH LOCK\n", t, curr));
+                    logger.info(() -> String.format("%s INTERRUPTED WITH LOCK\n", t, curr));
                     this.interrupt();
-                    old.unlock(t);
-                    curr.unlock(t);
+                    old.unlock();
+                    curr.unlock();
                     return;
                 }
 
-                logger.fine(String.format("%s at %s\n", t, curr));
+                logger.fine(() -> String.format("%s at %s\n", t, curr));
                 // move the train to the new station
                 log.train_moves(t, old, curr);
                 mbta.moveTrain(t, old, curr);
                 
                 // release the lock on the old station
-                logger.finer(String.format("%s allowing other trains to enter %s\n", t, old));
-                old.unlock(t);
+                logger.finer(() -> String.format("%s allowing other trains to enter %s\n", t, old));
+                old.unlock();
     
                 // Tell everyone who needs to get off to deboard the train
-                logger.finer(String.format("%s deboarding at %s\n", t, curr));
+                logger.finer(() -> String.format("%s deboarding at %s\n", t, curr));
                 Car c = cars.get(curr);
                 synchronized(c) { c.notifyAll(); }
                 
                 // Tell everyone who needs to get on to board the train
-                logger.finer(String.format("%s boarding at %s\n", t, curr));
+                logger.finer(() -> String.format("%s boarding at %s\n", t, curr));
                 Platform p = platforms.get(curr).get(t);
                 synchronized(p) { p.notifyAll(); }
     
                 // wait at the station
-                logger.finer(String.format("%s waiting in %s\n", t, curr));
+                logger.finer(() -> String.format("%s waiting in %s\n", t, curr));
                 Thread.sleep(wait_time);
                 
-                // System.err.printf("%s leaving %s\n", t, curr);
+                logger.finer(() -> String.format("%s leaving %s\n", t, curr));
             } catch (InterruptedException ex) {
-                // System.err.printf("%s CAUGHT INTERRUPTION\n", t);
+                logger.info(() -> String.format("%s CAUGHT INTERRUPTION\n", t));
                 this.interrupt();
-                curr.unlock(t);
+                curr.unlock();
                 return;
             }
         }
-        // System.err.printf("%s INTERUPTED OUT Of LOOP\n", t);
-        curr.unlock(t);
+        logger.info(() -> String.format("%s INTERUPTED OUT Of LOOP\n", t));
+        curr.unlock();
     }
 
     private void advance() {

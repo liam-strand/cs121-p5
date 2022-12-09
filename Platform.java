@@ -1,3 +1,11 @@
+/* Platform.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * Acts as a wait/notify target for passengers attempting to board trains.
+ */
+
 public class Platform {
     private final Train t;
     private final Station s;

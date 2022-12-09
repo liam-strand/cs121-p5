@@ -1,3 +1,11 @@
+/* DeboardEvent.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * An event representing a passenger getting off a train at a station.
+ */
+
 import java.util.*;
 
 public class DeboardEvent implements Event {

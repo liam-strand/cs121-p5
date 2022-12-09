@@ -1,3 +1,12 @@
+/* LogJson.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * Provides a json representation of a movement log, along with methods to
+ * create and read those representations.
+ */
+
 import java.io.*;
 import java.lang.reflect.*;
 import java.util.*;

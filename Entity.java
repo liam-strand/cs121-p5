@@ -1,3 +1,11 @@
+/* Entity.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * A typed final string
+ */
+
 public abstract class Entity {
     private final String name;
 

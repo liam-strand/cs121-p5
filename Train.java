@@ -1,3 +1,11 @@
+/* Train.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * A typed, singleton string that represents a train's name.
+ */
+
 import java.util.HashMap;
 
 public class Train extends Entity {

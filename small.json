@@ -1,1 +1,10 @@
-{"lines":{"Green":["Medford","Ball","Harvard","SMFA"],"Red":["Davis","Harvard","MIT","MGH"]},"trips":{"Liam":["Medford","Harvard","MGH"],"Cece":["Davis","Harvard","SMFA"]}}
+{
+  "lines": {
+    "Green": ["Medford", "Ball", "Harvard", "SMFA"],
+    "Red": ["Davis", "Harvard", "MIT", "MGH"]
+  },
+  "trips": {
+    "Liam": ["Medford", "Harvard", "MGH"],
+    "Cece": ["Davis", "Harvard", "SMFA"]
+  }
+}

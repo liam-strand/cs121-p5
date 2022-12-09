@@ -1,13 +1,16 @@
+/* ConfigTests.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * Tests for the loading, unloading, and creation of configurations.
+ */
+
 import java.util.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThrows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.*;
@@ -27,13 +30,13 @@ public class ConfigTests {
         Station s1 = Station.make("notastation");
         Station s2 = Station.make("notastation");
 
-        assertThat("not physically equal", p1, is(sameInstance(p2)));
-        assertThat("not physically equal", t1, is(sameInstance(t2)));
-        assertThat("not physically equal", s1, is(sameInstance(s2)));
+        assertThat(p1, is(sameInstance(p2)));
+        assertThat(t1, is(sameInstance(t2)));
+        assertThat(s1, is(sameInstance(s2)));
         
-        assertThat("not structurally equal", p1, is(equalTo(p2)));
-        assertThat("not structurally equal", t1, is(equalTo(t2)));
-        assertThat("not structurally equal", s1, is(equalTo(s2)));
+        assertThat(p1, is(equalTo(p2)));
+        assertThat(t1, is(equalTo(t2)));
+        assertThat(s1, is(equalTo(s2)));
     }
 
     @Test public void readConfigDoesntCrash() {

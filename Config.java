@@ -1,9 +1,13 @@
-import java.util.List;
-import java.util.Map;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileReader;
-import java.io.IOException;
+/* Config.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * A configuration for the MBTA simulator.
+ */
+
+import java.util.*;
+import java.io.*;
 
 import com.google.gson.Gson;
 

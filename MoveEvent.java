@@ -1,3 +1,11 @@
+/* MoveEvent.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * A logging event that represents a train moving from one station to another.
+ */
+
 import java.util.*;
 
 public class MoveEvent implements Event {

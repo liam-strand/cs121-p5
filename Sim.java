@@ -1,3 +1,11 @@
+/* Sim.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * The program driver for the simulation.
+ */
+
 import java.io.*;
 
 public class Sim {

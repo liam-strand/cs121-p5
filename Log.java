@@ -1,3 +1,11 @@
+/* Log.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * An in-memory thread-safe log for passengers and trains.
+ */
+
 import java.util.List;
 import java.util.LinkedList;
 

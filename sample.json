@@ -12,6 +12,6 @@
   "trips": {
     "Bob": [ "Park", "Tufts" ],
     "Alice": [ "Davis", "Kendall" ],
-      "Carol": [ "Maverick", "State", "Downtown Crossing", "Park", "Tufts" ]
+    "Carol": [ "Maverick", "State", "Downtown Crossing", "Park", "Tufts" ]
   }
 }

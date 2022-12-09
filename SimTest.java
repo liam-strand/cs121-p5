@@ -1,15 +1,16 @@
+/* SimTest.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * Runs tests on the full simulation.
+ */
+
 import java.util.*;
-import java.io.IOException;
-import java.io.File;
+import java.io.*;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertThrows;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.*;
 
 public class SimTest {
 

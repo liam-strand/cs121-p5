@@ -1,4 +1,13 @@
+/* Journey.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * The thread that represents a passenger's journey through the train system.
+ */
+
 import java.util.*;
+import java.util.logging.Logger;
 
 public class Journey extends Thread {
     private Passenger p;
@@ -9,6 +18,8 @@ public class Journey extends Thread {
     private final Log log;
     private final Actors actors;
     private final Map<Station, Map<Train, Platform>> platforms;
+
+    private final Logger logger = Logger.getLogger("metroSim");
 
     public Journey(Passenger p, List<Station> path, MBTA mbta, Log log, Map<Station, Map<Train, Platform>> platforms, Actors actors) {
         this.p = p;
@@ -30,11 +41,11 @@ public class Journey extends Thread {
                 Train t = plat.getTrain();
 
                 // Wait on the platform
-                // System.err.printf("%s waiting at %s\n", p, currentStation);
+                logger.finer(() -> String.format("%s waiting at %s\n", p, currentStation));
                 synchronized(plat) { 
                     do { plat.wait(); } while(mbta.findTrain(t) != currentStation);
                     
-                    // System.err.printf("%s boarding at %s\n", p, currentStation);
+                    logger.fine(() -> String.format("%s boarding at %s\n", p, currentStation));
                     // Board the train when it arrives
                     log.passenger_boards(p, t, currentStation);
                     mbta.boardTrain(p, t, currentStation);
@@ -45,13 +56,13 @@ public class Journey extends Thread {
                 
                 currentStation = path.poll();
                 
-                // System.err.printf("%s waiting for %s\n", p, currentStation);
                 // wait in that car
+                logger.finer(() -> String.format("%s waiting for %s\n", p, currentStation));
                 synchronized(c) { 
                     do { c.wait(); } while(mbta.findTrain(t) != currentStation);
                     
-                    // System.err.printf("%s deboarding at %s\n", p, currentStation);
                     // deboard the car
+                    logger.fine(() -> String.format("%s deboarding at %s\n", p, currentStation));
                     log.passenger_deboards(p, t, currentStation);
                     mbta.deboardTrain(p, t, currentStation);
                 }

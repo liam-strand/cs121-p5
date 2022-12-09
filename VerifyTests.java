@@ -1,15 +1,19 @@
-import java.io.File;
-import java.io.IOException;
+/* VerifyTests.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * Runs some affirmative and negative tests on the log verifier.
+ */
+// @SuppressWarnings("unused")
+
+import java.io.*;
 import java.util.*;
 
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertThrows;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.CoreMatchers.*;
 
 
 public class VerifyTests {

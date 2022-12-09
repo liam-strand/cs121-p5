@@ -1,3 +1,11 @@
+/* Verify.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * Runs verification on a MBTA log.
+ */
+
 import java.io.*;
 
 public class Verify {

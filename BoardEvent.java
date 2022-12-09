@@ -1,3 +1,11 @@
+/* BoardEvent.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * An event representing a passenger getting on a train at a station.
+ */
+
 import java.util.*;
 
 public class BoardEvent implements Event {

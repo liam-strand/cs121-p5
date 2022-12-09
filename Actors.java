@@ -1,11 +1,23 @@
+/* Actors.java
+ * 
+ * By: Liam Strand
+ * On: December 2022
+ * 
+ * A class containing all the concurrent actors that comprise the simulation.
+ */
+
 import java.util.*;
 import java.util.Map.Entry;
+
+import java.util.logging.Logger;
 
 public class Actors {
 
     private Map<Passenger, Journey> journies = new HashMap<>();
     private Map<Train,     Line>    lines    = new HashMap<>();
     private Map<Station, Map<Train, Platform>> platforms = new HashMap<>();
+
+    private static Logger logger = Logger.getLogger("metroSim");
         
     public Actors(Map<Passenger, List<Station>> journeySpecs, Map<Train, List<Station>> lineSpecs, MBTA mbta, Log log, int wait_time) {
         for (Entry<Passenger, List<Station>> journeySpec : journeySpecs.entrySet()) {
@@ -32,13 +44,15 @@ public class Actors {
     }
 
     public void run() {
+
         journies.values().forEach(j -> j.start());
         lines.values().forEach(l -> l.start());
         journies.values().forEach(j -> uncheckedJoin(j));
-        System.err.println("INTERRUPTING LINES");
+        
+        logger.info("INTERRUPTING LINES");
         lines.values().forEach(l -> l.interrupt());
         lines.values().forEach(l -> uncheckedJoin(l));
-    }
+   }
 
     private void uncheckedJoin(Thread t) {
         try {

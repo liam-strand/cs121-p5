@@ -1,3 +1,9 @@
+"""readLog.py
+
+By: Liam Strand
+On: December 2022
+"""
+
 from pprint import pprint
 
 def main():
