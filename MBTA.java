@@ -16,33 +16,33 @@ import java.util.logging.Formatter;
 import java.io.File;
 
 public class MBTA {
-    
+
     /* STATE */
-    private Map<Station,   List<Passenger>> station_passengers;
-    private Map<Train,     Station>         train_locations;
-    private Map<Train,     List<Passenger>> train_passengers;
-    private Map<Passenger, List<Station>>   stations_remaining;
-    private Map<Train,     Integer>         train_idx;
-    private Map<Train,     Integer>         train_dir;
+    private Map<Station, List<Passenger>> station_passengers;
+    private Map<Train, Station> train_locations;
+    private Map<Train, List<Passenger>> train_passengers;
+    private Map<Passenger, List<Station>> stations_remaining;
+    private Map<Train, Integer> train_idx;
+    private Map<Train, Integer> train_dir;
 
     /* CONFIGURATION */
     private Map<Passenger, List<Station>> journies;
-    private Map<Train,     List<Station>> lines;
+    private Map<Train, List<Station>> lines;
 
     /* UTILITY */
     private boolean checkMoves = false;
 
     // Creates an initially empty simulation
-    public MBTA() { 
+    public MBTA() {
         station_passengers = Collections.synchronizedMap(new HashMap<>());
-        train_locations    = Collections.synchronizedMap(new HashMap<>());
-        train_passengers   = Collections.synchronizedMap(new HashMap<>());
+        train_locations = Collections.synchronizedMap(new HashMap<>());
+        train_passengers = Collections.synchronizedMap(new HashMap<>());
         stations_remaining = Collections.synchronizedMap(new HashMap<>());
-        train_idx          = Collections.synchronizedMap(new HashMap<>());
-        train_dir          = Collections.synchronizedMap(new HashMap<>());
-        
+        train_idx = Collections.synchronizedMap(new HashMap<>());
+        train_dir = Collections.synchronizedMap(new HashMap<>());
+
         journies = new HashMap<>();
-        lines    = new HashMap<>();
+        lines = new HashMap<>();
 
         configureLog();
     }
@@ -50,14 +50,14 @@ public class MBTA {
     // Adds a new transit line with given name and stations
     public void addLine(String name, List<String> stations) {
         Train t = Train.make(name);
-        
+
         lines.put(t, new ArrayList<>());
         stations.forEach(str -> {
             Station s = Station.make(str);
             station_passengers.put(s, new ArrayList<>());
             lines.get(t).add(s);
         });
-        
+
         train_locations.put(t, lines.get(t).get(0));
         train_idx.put(t, 0);
         train_passengers.put(t, new ArrayList<>());
@@ -69,7 +69,7 @@ public class MBTA {
         Passenger p = Passenger.make(name);
 
         journies.put(p, stations.stream().map(str -> Station.make(str)).toList());
-        
+
         stations_remaining.put(p, new LinkedList<>());
         journies.get(p).forEach(s -> stations_remaining.get(p).add(s));
 
@@ -94,7 +94,8 @@ public class MBTA {
             Station start = line.getValue().get(0);
 
             if (train_locations.get(t) != start) {
-                throw new RuntimeException(String.format("Train %s was at %s not at %s", t, train_locations.get(t), start));
+                throw new RuntimeException(
+                        String.format("Train %s was at %s not at %s", t, train_locations.get(t), start));
             }
         }
     }
@@ -104,7 +105,8 @@ public class MBTA {
     public void checkEnd() {
         for (Entry<Passenger, List<Station>> journey : stations_remaining.entrySet()) {
             if (!journey.getValue().isEmpty()) {
-                throw new RuntimeException(String.format("Passenger %s did not complete their journey", journey.getKey()));
+                throw new RuntimeException(
+                        String.format("Passenger %s did not complete their journey", journey.getKey()));
             }
         }
     }
@@ -162,15 +164,14 @@ public class MBTA {
             deboardTrainUnchecked(p, t, s);
         }
     }
-    
 
     public void moveTrainUnchecked(Train t, Station s1, Station s2) {
         int idx = train_idx.get(t);
         int dir = train_dir.get(t);
         int len = lines.get(t).size();
-        
+
         idx += dir;
-        
+
         if (idx >= len) {
             dir *= -1;
             idx = len - 2;
@@ -178,7 +179,7 @@ public class MBTA {
             dir *= -1;
             idx = 1;
         }
-        
+
         train_idx.put(t, idx);
         train_dir.put(t, dir);
 
@@ -203,20 +204,21 @@ public class MBTA {
             throw new RuntimeException(String.format("Train %s started at %s instead of %s", t, s1, start));
         }
 
-        synchronized(train_locations) {
+        synchronized (train_locations) {
             for (Entry<Train, Station> loc : train_locations.entrySet()) {
                 if (loc.getValue() == s2) {
-                    throw new RuntimeException(String.format("Train %s entered %s, but %s was already there", t, s2, loc.getKey()));
+                    throw new RuntimeException(
+                            String.format("Train %s entered %s, but %s was already there", t, s2, loc.getKey()));
                 }
             }
         }
-        
 
         moveTrainUnchecked(t, s1, s2);
 
         Station expected_station = lines.get(t).get(train_idx.get(t));
         if (s2 != expected_station) {
-            throw new RuntimeException(String.format("Train %s ended at %s instead of the next stop in the line %s", t, s2, expected_station));
+            throw new RuntimeException(String.format("Train %s ended at %s instead of the next stop in the line %s", t,
+                    s2, expected_station));
         }
 
         Station end = train_locations.get(t);
@@ -228,14 +230,18 @@ public class MBTA {
     public void boardTrainChecked(Passenger p, Train t, Station s) {
 
         if (s != train_locations.get(t)) {
-            throw new RuntimeException(String.format("The train (%s) was not at the expected station (expected %s got %s)", t, s, train_locations.get(t)));
+            throw new RuntimeException(
+                    String.format("The train (%s) was not at the expected station (expected %s got %s)", t, s,
+                            train_locations.get(t)));
         }
 
-        if (!stationHasNoTrain(s)) 
+        if (!stationHasNoTrain(s))
 
-        if (s != findPassengerStation(p)) {
-            throw new RuntimeException(String.format("The passenger (%s) was not at the expected station (expected %s got %s)", p, s, findPassengerStation(p)));
-        }
+            if (s != findPassengerStation(p)) {
+                throw new RuntimeException(
+                        String.format("The passenger (%s) was not at the expected station (expected %s got %s)", p, s,
+                                findPassengerStation(p)));
+            }
 
         boardTrainUnchecked(p, t, s);
     }
@@ -243,21 +249,25 @@ public class MBTA {
     public void deboardTrainChecked(Passenger p, Train t, Station s) {
 
         if (s != train_locations.get(t)) {
-            throw new RuntimeException(String.format("The train (%s) was not at the expected station (expected %s got %s)", t, s, train_locations.get(t)));
+            throw new RuntimeException(
+                    String.format("The train (%s) was not at the expected station (expected %s got %s)", t, s,
+                            train_locations.get(t)));
         }
 
         if (s != passengerNextStation(p)) {
-            throw new RuntimeException(String.format("The passenger (%s) was not supposed to go to the current station (wanted %s got %s)", p, passengerNextStation(p), s));
+            throw new RuntimeException(
+                    String.format("The passenger (%s) was not supposed to go to the current station (wanted %s got %s)",
+                            p, passengerNextStation(p), s));
         }
 
         deboardTrainUnchecked(p, t, s);
     }
 
     private Station findPassengerStation(Passenger p) {
-        synchronized(station_passengers) {
+        synchronized (station_passengers) {
             for (Entry<Station, List<Passenger>> station : station_passengers.entrySet()) {
                 Station s = station.getKey();
-                if(station.getValue().contains(p)) {
+                if (station.getValue().contains(p)) {
                     return s;
                 }
             }
@@ -266,13 +276,13 @@ public class MBTA {
     }
 
     private Station passengerNextStation(Passenger p) {
-        synchronized(stations_remaining) {
+        synchronized (stations_remaining) {
             return stations_remaining.get(p).get(0);
         }
     }
 
     public boolean stationHasNoTrain(Station s) {
-        synchronized(train_locations) {
+        synchronized (train_locations) {
             return !train_locations.values().contains(s);
         }
     }
@@ -301,25 +311,24 @@ public class MBTA {
     }
 
     private void configureLog() {
-        Formatter f = new Formatter(){
+        Formatter f = new Formatter() {
             public String format(LogRecord record) {
                 return String.format(
-                    "%d | %s | %s#%s | %d\n%s: %s\n", 
-                    record.getMillis() % 100000, 
-                    record.getLoggerName(),
-                    record.getSourceClassName(),
-                    record.getSourceMethodName(),
-                    record.getLongThreadID(),
-                    record.getLevel(),
-                    record.getMessage()
-                );
+                        "%d | %s | %s#%s | %d\n%s: %s\n",
+                        record.getMillis() % 100000,
+                        record.getLoggerName(),
+                        record.getSourceClassName(),
+                        record.getSourceMethodName(),
+                        record.getLongThreadID(),
+                        record.getLevel(),
+                        record.getMessage());
             }
         };
 
         Logger log = Logger.getLogger("metroSim");
         log.setUseParentHandlers(false);
         Arrays.stream(log.getHandlers()).forEach(h -> log.removeHandler(h));
-        log.setLevel(Level.ALL);
+        log.setLevel(Level.OFF);
         Handler h = new ConsoleHandler();
         h.setLevel(log.getLevel());
         h.setFormatter(f);
