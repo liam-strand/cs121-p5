@@ -1,5 +1,7 @@
 # MetroSim2
 
+## Design
+
 My simulation has two types of concurrent threads:
 
 First, the `Journey` class represents a `Passenger`'s movement through the stations in its journey. The passenger begins at its starting `Station`. If that `Station` has multiple `Line`s stopping at it, the `Passenger` decides which `Line`'s `Platform` to wait at. When the `Line` arrives, it signals the `Journey`'s on its platform to board the `Line`, and the `Journey` selects the appropriate `Car` in the `Line` to wait on. When the `Line` arrives at that `Car`'s `Station`, the `Line` signals the `Journey` to exit the train and wait on the `Platform`, and the cycle continues. 
